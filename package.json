@@ -4,12 +4,13 @@
   "description": "manage timesheets",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server/server.js"
   },
   "author": "Tom Dror",
   "license": "ISC",
   "dependencies": {
-    "bower": "^1.7.9",
-    "express": "^4.14.0"
+    "body-parser": "^1.15.2",
+    "express": "^4.14.0",
+    "mysql": "^2.11.1"
   }
 }
