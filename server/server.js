@@ -53,7 +53,7 @@ var bodyParser  = require("body-parser");
 var rest = require("./REST.js");
 var app  = express();
 
-var resources = require("./back-end/resources.json");
+var resources = require("./resources.json");
 
 function REST(){
     var self = this;
@@ -80,20 +80,21 @@ REST.prototype.connectMysql = function() {
 }
 
 REST.prototype.configureExpress = function(connection) {
-      var self = this;
-      app.use(bodyParser.urlencoded({ extended: true }));
-      app.use(bodyParser.json());
-      var router = express.Router();
-      app.use('/api', router);
-      var rest_router = new rest(router,connection);
-      // var rest_router = new rest(router,connection,md5);
-      self.startServer();
+  	var self = this;
+  	app.use(bodyParser.urlencoded({ extended: true }));
+ 	app.use(bodyParser.json());
+  	var router = express.Router();
+  	app.use('/api', router);
+  	var rest_router = new rest(router,connection);
+  	// var rest_router = new rest(router,connection,md5);
+  	self.startServer();
 }
 
 REST.prototype.startServer = function() {
-      app.listen(3000,function(){
-          console.log("All right ! I am alive at Port 3000.");
-      });
+	var port = resources.port;
+	app.listen(port,function(){
+    	console.log("All right ! I am alive at Port: " + port);
+    });
 }
 
 REST.prototype.stop = function(err) {

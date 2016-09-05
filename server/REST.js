@@ -7,38 +7,88 @@ function REST_ROUTER(router,connection) {
     self.handleRoutes(router,connection);
 }
 
+
+function mySqlErrorJson(err){
+    return {"Error" : err, "Message" : "Error executing MySQL query"};
+}
+
+function errorJson(message){
+    return {"Error" : true, "Message" : message};
+}
+
+
 // REST_ROUTER.prototype.handleRoutes = function(router,connection,md5) {
 REST_ROUTER.prototype.handleRoutes = function(router,connection) {
     var self = this;
+    var errorJson = 
     router.get("/",function(req,res){
         res.json({"Message" : "Hello World !"});
     });
 
-    // router.get("/users",function(req,res){
-    //     var query = "SELECT * FROM ??";
-    //     var table = ["user_login"];
-    //     query = mysql.format(query,table);
-    //     connection.query(query,function(err,rows){
-    //         if(err) {
-    //             res.json({"Error" : true, "Message" : "Error executing MySQL query"});
-    //         } else {
-    //             res.json({"Error" : false, "Message" : "Success", "Users" : rows});
-    //         }
-    //     });
-    // });
+    router.get("/timesheet/:timesheetId",function(req,res){
+        //todo is this too much sql? should this be in a SP or a view?
+        var query = "SELECT programs.`Name` AS programName,"
+                  + " organizations.`Name` AS organizationName,"
+                  + " timesheet.`Name` AS timesheetName"
+                  + " FROM timesheet"
+                  + " JOIN programs "
+                  + " ON programs.`ProgramId` = timesheet.`ProgramId`"
+                  + " JOIN organizations"
+                  + " ON organizations.`OrganizationId` = programs.`OrganizationId`"
+                  + " WHERE timesheet.`TimesheetId` = ?";
+        var table = [req.params.timesheetId];
+        query = mysql.format(query,table);
+        connection.query(query,function(err,rows){
+            if(err) {
+                res.json(mySqlErrorJson(err));
+            } else {
+                // var program = rows.lenth == 0 ? null : rows[0];
+                res.json({"Error" : false, "Message" : "Success", "program" : rows[0]});
+            }
+        });
+    });
 
-    // router.get("/users/:user_id",function(req,res){
-    //     var query = "SELECT * FROM ?? WHERE ??=?";
-    //     var table = ["user_login","user_id",req.params.user_id];
-    //     query = mysql.format(query,table);
-    //     connection.query(query,function(err,rows){
-    //         if(err) {
-    //             res.json({"Error" : true, "Message" : "Error executing MySQL query"});
-    //         } else {
-    //             res.json({"Error" : false, "Message" : "Success", "Users" : rows});
-    //         }
-    //     });
-    // });
+//this is a hack for now, ultimately need to implement users 
+    router.get("/timesheet/GetLastLogged/:userEmail",function(req,res){
+        var query = "SELECT * FROM timesheet_log"
+                  + " WHERE timesheet_log.`UserEmail` = ?"
+                  + " ORDER BY timesheet_log.`DTStartLog` DESC LIMIT 1";
+        var table = [req.params.userEmail];
+        query = mysql.format(query,table);
+        connection.query(query,function(err,rows){
+            if(err) {
+                res.json(mySqlErrorJson(err));
+            } else {
+                res.json({"Error" : false, "Message" : "Success", "timesheetLog" : rows[0]});
+            }
+        });
+    });
+//hack for now
+    router.post("/timesheet/:timesheetId/Log/:userEmail",function(req,res){
+        var query = "SELECT * FROM timesheet_log"
+                  + " WHERE timesheet_log.`UserEmail` = ?"
+                  + " ORDER BY timesheet_log.`DTStartLog` DESC LIMIT 1";
+        var table = [req.params.userEmail];
+        query = mysql.format(query,table);
+        connection.query(query,function(err,rows){
+            if (err) {
+                res.json(errorJson(err));
+            } else {
+                if (rows.length == 0) Login();
+                else {
+                    lastLogged = rows[0];
+                    //if not logged out and not on this timesheet, error
+                    if(lastLogged.DTEndLog == null && lastLogged.TimesheetId != req.params.timesheetId)
+                        res.json(errorJson({}))
+                    if(lastLogged.DTEndLog == null){
+                        //compare with current time
+                    }
+                }
+
+                res.json({"Error" : false, "Message" : "Success", "timesheetLog" : rows[0]});
+            }
+        });
+    });
 
     // router.post("/users",function(req,res){
     //     var query = "INSERT INTO ??(??,??) VALUES (?,?)";
