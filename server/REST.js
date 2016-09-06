@@ -16,6 +16,36 @@ function errorJson(message){
     return {"Error" : true, "Message" : message};
 }
 
+function SignIn(req, res, connection){
+    var query = "INSERT INTO timesheet.timesheet_log "
+              + "( TimesheetId, DTStartLog, UserEmail )"
+              + "VALUES (?, NOW(), ?)"
+    var table = [req.params.timesheetId, req.params.userEmail];
+    query = mysql.format(query, table);
+    connection.query(query, function(err, rows){
+        if(err) {
+            res.json(mySqlErrorJson(err));
+        } else {
+            res.json({"Error" : false, "Message" : "Success", "SignIn" : rows});
+        }
+    });
+}
+
+function SignOut(lastLogged, req, res, connection){
+    var highLogTime = 4; //4 hours
+    var query = "UPDATE timesheetapp.timesheet_log"
+              + " SET DTEndLog = NOW(), Comment = ?, HighLogTime = TIMESTAMPDIFF(HOUR, lastLogged.DTStartLog, NOW()) > " +  highLogTime //4 hours
+              + " WHERE LogId = ?";
+    var table = [lastLogged.Comment, lastLogged.LogId];
+    connection.query(query, function(err, rows){
+        if(err) {
+            res.json(mySqlErrorJson(err));
+        } else {
+            res.json({"Error" : false, "Message" : "Success", "SignOut" : rows});
+        }
+    });
+}
+
 
 // REST_ROUTER.prototype.handleRoutes = function(router,connection,md5) {
 REST_ROUTER.prototype.handleRoutes = function(router,connection) {
@@ -74,18 +104,20 @@ REST_ROUTER.prototype.handleRoutes = function(router,connection) {
             if (err) {
                 res.json(errorJson(err));
             } else {
-                if (rows.length == 0) Login();
-                else {
+                if (rows.length > 0) {
                     lastLogged = rows[0];
-                    //if not logged out and not on this timesheet, error
-                    if(lastLogged.DTEndLog == null && lastLogged.TimesheetId != req.params.timesheetId)
-                        res.json(errorJson({}))
-                    if(lastLogged.DTEndLog == null){
-                        //compare with current time
+
+                    if(lastLogged.DTEndLog == null) {
+                        if(lastLogged.TimesheetId != req.params.timesheetId){
+                            res.json(errorJson("Did not log out from another timesheet"));
+                        }
+                        else {
+                            SignOut(lastLogged, req, res, connection);
+                        }    
+                        return;                    
                     }
                 }
-
-                res.json({"Error" : false, "Message" : "Success", "timesheetLog" : rows[0]});
+                SignIn(req, res, connection);
             }
         });
     });
