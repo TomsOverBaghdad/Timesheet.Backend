@@ -16,6 +16,9 @@ REST.prototype.connectMysql = function() {
     var self = this;
     var pool      =    mysql.createPool({
         connectionLimit : 100,
+        connectTimeout  : 60 * 60 * 1000,
+        aquireTimeout   : 60 * 60 * 1000,
+        timeout         : 60 * 60 * 1000,
         host     : process.env.host,//'localhost',
         user     : process.env.user,
         password : process.env.password,
