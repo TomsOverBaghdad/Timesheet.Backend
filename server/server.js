@@ -16,7 +16,9 @@ try{
 }catch(e){
   resources = process.env;
   console.log("couldn't load local resources ");
-  console.log(resources);
+  console.log(resources.host);
+  console.log(resources.password);
+  console.log(resources.port);
   console.log(e);
 }
 
