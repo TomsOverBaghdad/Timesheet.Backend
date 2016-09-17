@@ -7,6 +7,20 @@ var bodyParser  = require("body-parser");
 var rest = require("./REST.js");
 var app  = express();
 
+
+var resources; 
+try{
+  resources = require("./resources.json");  
+  console.log("loaded resources");
+  console.log(resources);
+}catch(e){
+  resources = process.env;
+  console.log("couldn't load local resources ");
+  console.log(resources);
+  console.log(e);
+}
+
+
 function REST(){
     var self = this;
     self.connectMysql();
@@ -15,14 +29,14 @@ function REST(){
 REST.prototype.connectMysql = function() {
     var self = this;
     var pool      =    mysql.createPool({
-        connectionLimit : 100,
+        connectionLimit : 10,
         connectTimeout  : 60 * 60 * 1000,
         aquireTimeout   : 60 * 60 * 1000,
         timeout         : 60 * 60 * 1000,
-        host     : process.env.host,//'localhost',
-        user     : process.env.user,
-        password : process.env.password,
-        database : process.env.database,
+        host     : resources.host,
+        user     : resources.user,
+        password : resources.password,
+        database : resources.database,
         debug    :  false
     });
     pool.getConnection(function(err,connection){
@@ -46,7 +60,7 @@ REST.prototype.configureExpress = function(connection) {
 }
 
 REST.prototype.startServer = function() {
-	var port = process.env.port;
+	var port = resources.port;
 	app.listen(port,function(){
     	console.log("All right ! I am alive at Port: " + port);
     });
