@@ -27,13 +27,14 @@ REST.prototype.connectMysql = function() {
     var self = this;
     var pool      =    mysql.createPool({
         connectionLimit : 10,
-        connectTimeout  : 60 * 60 * 1000,
-        acquireTimeout  : 60 * 60 * 1000,
-        timeout         : 60 * 60 * 1000,
+        // connectTimeout  : 1000,
+        // acquireTimeout  : 1000,
+        // timeout         : 1000,
         host     : resources.host,
         user     : resources.user,
         password : resources.password,
-        database : resources.database
+        database : resources.database,
+        debug : true
     });
     pool.getConnection(function(err,connection){
         if(err) {
