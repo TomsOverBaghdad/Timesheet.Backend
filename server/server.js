@@ -6,6 +6,7 @@ var bodyParser  = require("body-parser");
 // var md5 = require('MD5');
 var rest = require("./REST.js");
 var app  = express();
+var fs = require('fs');
 
 
 var resources; 
@@ -34,7 +35,9 @@ REST.prototype.connectMysql = function() {
         user     : resources.user,
         password : resources.password,
         database : resources.database,
-        ssl : "Amazon RDS",
+        ssl : {
+          ca : fs.readFileSync('rds-ca-2015-root.pem')
+        }
         debug : true
     });
     pool.getConnection(function(err,connection){
