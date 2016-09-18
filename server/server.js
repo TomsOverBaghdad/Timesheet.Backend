@@ -36,9 +36,8 @@ REST.prototype.connectMysql = function() {
         password : resources.password,
         database : resources.database,
         ssl : {
-          ca : fs.readFileSync('rds-ca-2015-root.pem')
+          ca : fs.readFileSync('rds-ca-2015-us-east-1.pem')
         },
-        trace : true,
         debug : true
     });
     pool.getConnection(function(err,connection){
