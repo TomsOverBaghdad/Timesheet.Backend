@@ -30,7 +30,7 @@ REST.prototype.connectMysql = function() {
         // connectTimeout  : 1000,
         // acquireTimeout  : 1000,
         // timeout         : 1000,
-        host     : resources.host,
+        host     : resources.testurl,
         user     : resources.user,
         password : resources.password,
         database : resources.database,
