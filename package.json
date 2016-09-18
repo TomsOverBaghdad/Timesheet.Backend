@@ -2,7 +2,8 @@
   "name": "avi_project",
   "version": "1.0.0",
   "engines": {
-    "node": "4.4.7"
+    "node": "4.4.7",
+    "npm" : "2.15.8"
   },
   "description": "manage timesheets",
   "main": "index.js",

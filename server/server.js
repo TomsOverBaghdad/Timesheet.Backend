@@ -11,15 +11,10 @@ var app  = express();
 var resources; 
 try{
   resources = require("./resources.json");  
-  console.log("loaded resources");
-  console.log(resources);
+  console.log("loading local resources");
 }catch(e){
   resources = process.env;
-  console.log("couldn't load local resources ");
-  console.log(resources.host);
-  console.log(resources.password);
-  console.log(resources.port);
-  console.log(e);
+  console.log("loading environment variables");
 }
 
 
@@ -69,7 +64,8 @@ REST.prototype.startServer = function() {
 }
 
 REST.prototype.stop = function(err) {
-    console.log("ISSUE WITH MYSQL \n" + err);
+    console.log("ISSUE WITH MYSQL");
+    console.log(err);
     process.exit(1);
 }
 
