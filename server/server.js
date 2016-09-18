@@ -34,7 +34,7 @@ REST.prototype.connectMysql = function() {
         user     : resources.user,
         password : resources.password,
         database : resources.database,
-        ssl : "Amazon RDS"
+        ssl : "Amazon RDS",
         debug : true
     });
     pool.getConnection(function(err,connection){
