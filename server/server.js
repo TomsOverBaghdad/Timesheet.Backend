@@ -28,13 +28,12 @@ REST.prototype.connectMysql = function() {
     var pool      =    mysql.createPool({
         connectionLimit : 10,
         connectTimeout  : 60 * 60 * 1000,
-        aquireTimeout   : 60 * 60 * 1000,
+        acquireTimeout  : 60 * 60 * 1000,
         timeout         : 60 * 60 * 1000,
         host     : resources.host,
         user     : resources.user,
         password : resources.password,
-        database : resources.database,
-        debug    :  false
+        database : resources.database
     });
     pool.getConnection(function(err,connection){
         if(err) {
@@ -48,7 +47,7 @@ REST.prototype.connectMysql = function() {
 REST.prototype.configureExpress = function(connection) {
   	var self = this;
   	app.use(bodyParser.urlencoded({ extended: true }));
- 	app.use(bodyParser.json());
+ 	  app.use(bodyParser.json());
   	var router = express.Router();
   	app.use('/api', router);
   	var rest_router = new rest(router,connection);
