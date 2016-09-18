@@ -30,10 +30,11 @@ REST.prototype.connectMysql = function() {
         // connectTimeout  : 1000,
         // acquireTimeout  : 1000,
         // timeout         : 1000,
-        host     : resources.testurl,
+        host     : resources.host,
         user     : resources.user,
         password : resources.password,
         database : resources.database,
+        ssl : "Amazon RDS"
         debug : true
     });
     pool.getConnection(function(err,connection){
