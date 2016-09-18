@@ -36,7 +36,7 @@ REST.prototype.connectMysql = function() {
         password : resources.password,
         database : resources.database,
         ssl : {
-          ca : fs.readFileSync('rds-ca-2015-us-east-1.pem')
+          ca : fs.readFileSync('timesheet-key.pem')
         },
         debug : true
     });
