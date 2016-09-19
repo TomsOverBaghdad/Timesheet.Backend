@@ -6,7 +6,6 @@ var bodyParser  = require("body-parser");
 // var md5 = require('MD5');
 var rest = require("./REST.js");
 var app  = express();
-var fs = require('fs');
 
 
 var resources; 
@@ -34,8 +33,7 @@ REST.prototype.connectMysql = function() {
         host     : resources.host,
         user     : resources.user,
         password : resources.password,
-        database : resources.database,
-        debug : true
+        database : resources.database
     });
     pool.getConnection(function(err,connection){
         if(err) {
