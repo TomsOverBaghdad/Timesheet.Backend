@@ -56,7 +56,7 @@ REST.prototype.configureExpress = function(connection) {
 }
 
 REST.prototype.startServer = function() {
-	var port = resources.port;
+	var port = process.env.PORT || resources.port;
 	app.listen(port,function(){
     	console.log("All right ! I am alive at Port: " + port);
     });
