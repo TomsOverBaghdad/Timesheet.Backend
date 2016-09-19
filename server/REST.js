@@ -68,7 +68,6 @@ REST_ROUTER.prototype.handleRoutes = function(router,connection) {
                   + " WHERE timesheet.`TimesheetId` = ?";
         var table = [req.params.timesheetId];
         query = mysql.format(query,table);
-console.log(query);
         connection.query(query,function(err,rows){
             if(err) {
                 res.json(mySqlErrorJson(err));
