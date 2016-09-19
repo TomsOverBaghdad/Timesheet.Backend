@@ -35,9 +35,6 @@ REST.prototype.connectMysql = function() {
         user     : resources.user,
         password : resources.password,
         database : resources.database,
-        ssl : {
-          ca : fs.readFileSync('timesheet-key.pem')
-        },
         debug : true
     });
     pool.getConnection(function(err,connection){
