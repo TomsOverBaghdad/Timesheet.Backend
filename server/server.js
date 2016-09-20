@@ -27,7 +27,8 @@ function REST(){
 REST.prototype.connectMysql = function() {
     var self = this;
     var pool      =    mysql.createPool({
-        connectionLimit : 10,
+        connectionLimit : 50,
+        waitForConnection: true,
         // connectTimeout  : 1000,
         // acquireTimeout  : 1000,
         // timeout         : 1000,
@@ -36,16 +37,17 @@ REST.prototype.connectMysql = function() {
         password : resources.password,
         database : resources.database
     });
-    pool.getConnection(function(err,connection){
-        if(err) {
-          self.stop(err);
-        } else {
-          self.configureExpress(connection);
-        }
-    });
+    self.configureExpress(pool);
+    // pool.getConnection(function(err,connection){
+    //     if(err) {
+    //       self.stop(err);
+    //     } else {
+    //       self.configureExpress(connection);
+    //     }
+    // });
 }
 
-REST.prototype.configureExpress = function(connection) {
+REST.prototype.configureExpress = function(pool) {
   	var self = this;    
     app.use(cors({
       allowedOrigins: [
@@ -57,7 +59,7 @@ REST.prototype.configureExpress = function(connection) {
      //
   	var router = express.Router();
   	app.use('/', router);
-  	var rest_router = new rest(router,connection);
+  	var rest_router = new rest(router,pool);
   	// var rest_router = new rest(router,connection,md5);
   	self.startServer();
 }

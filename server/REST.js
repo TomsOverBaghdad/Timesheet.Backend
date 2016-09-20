@@ -1,10 +1,10 @@
 var mysql   = require("mysql");
 
-function REST_ROUTER(router,connection) {
+function REST_ROUTER(router,pool) {
 // function REST_ROUTER(router,connection,md5) {
     var self = this;
     // self.handleRoutes(router,connection,md5);
-    self.handleRoutes(router,connection);
+    self.handleRoutes(router,pool);
 }
 
 
@@ -23,6 +23,7 @@ function SignIn(req, res, connection){
     var table = [req.params.timesheetId, req.params.userEmail];
     query = mysql.format(query, table);
     connection.query(query, function(err, rows){
+        connection.release();
         if(err) {
             res.json(mySqlErrorJson(err));
         } else {
@@ -38,6 +39,7 @@ function SignOut(lastLogged, req, res, connection){
               + " WHERE LogId = ?";
     var table = [lastLogged.Comment, lastLogged.LogId];
     connection.query(query, function(err, rows){
+        connection.release();
         if(err) {
             res.json(mySqlErrorJson(err));
         } else {
@@ -48,7 +50,7 @@ function SignOut(lastLogged, req, res, connection){
 
 
 // REST_ROUTER.prototype.handleRoutes = function(router,connection,md5) {
-REST_ROUTER.prototype.handleRoutes = function(router,connection) {
+REST_ROUTER.prototype.handleRoutes = function(router,pool) {
     var self = this;
     var errorJson = 
     router.get("/",function(req,res){
@@ -68,29 +70,35 @@ REST_ROUTER.prototype.handleRoutes = function(router,connection) {
                   + " WHERE timesheet.`TimesheetId` = ?";
         var table = [req.params.timesheetId];
         query = mysql.format(query,table);
-        connection.query(query,function(err,rows){
-            if(err) {
-                res.json(mySqlErrorJson(err));
-            } else {
-                // var program = rows.lenth == 0 ? null : rows[0];
-                res.json({"Error" : false, "Message" : "Success", "program" : rows[0]});
-            }
+        pool.getConnection(function(err, connection) {
+            connection.query(query,function(err,rows){
+                connection.release();
+                if(err) {
+                    res.json(mySqlErrorJson(err));
+                } else {
+                    res.json({"Error" : false, "Message" : "Success", "program" : rows[0]});
+                }
+            });
         });
     });
 
 //this is a hack for now, ultimately need to implement users 
+//maybe return user and have last logged info on user or log status or something
     router.get("/timesheet/GetLastLogged/:userEmail",function(req,res){
         var query = "SELECT * FROM timesheet_log"
                   + " WHERE timesheet_log.`UserEmail` = ?"
                   + " ORDER BY timesheet_log.`DTStartLog` DESC LIMIT 1";
         var table = [req.params.userEmail];
         query = mysql.format(query,table);
-        connection.query(query,function(err,rows){
-            if(err) {
-                res.json(mySqlErrorJson(err));
-            } else {
-                res.json({"Error" : false, "Message" : "Success", "timesheetLog" : rows[0]});
-            }
+        pool.getConnection(function(err, connection) {
+            connection.query(query,function(err,rows){
+                connection.release();
+                if(err) {
+                    res.json(mySqlErrorJson(err));
+                } else {
+                    res.json({"Error" : false, "Message" : "Success", "timesheetLog" : rows[0]});
+                }
+            });
         });
     });
 //hack for now
@@ -100,27 +108,28 @@ REST_ROUTER.prototype.handleRoutes = function(router,connection) {
                   + " ORDER BY timesheet_log.`DTStartLog` DESC LIMIT 1";
         var table = [req.params.userEmail];
         query = mysql.format(query,table);
-        connection.query(query,function(err,rows){
-            if (err) {
-                res.json(errorJson(err));
-            } else {
-                if (rows.length > 0) {
-                    lastLogged = rows[0];
+        pool.getConnection(function(err, connection) {
+            connection.query(query,function(err,rows){
+                if (err) {
+                    res.json(errorJson(err));
+                } else {
+                    if (rows.length > 0) {
+                        lastLogged = rows[0];
 
-                    if(lastLogged.DTEndLog == null) {
-                        if(lastLogged.TimesheetId != req.params.timesheetId){
-                            res.json(errorJson("Did not log out from another timesheet"));
+                        if(lastLogged.DTEndLog == null) {
+                            if(lastLogged.TimesheetId != req.params.timesheetId){
+                                res.json(errorJson("Did not log out from another timesheet"));
+                            }
+                            else {
+                                SignOut(lastLogged, req, res, connection);
+                            }    
+                            connection.release();
+                            return;                    
                         }
-                        else {
-                            SignOut(lastLogged, req, res, connection);
-                        }    
-                        connection.release();
-                        return;                    
                     }
+                    SignIn(req, res, connection);
                 }
-                SignIn(req, res, connection);
-            }
-            connection.release();
+            });
         });
     });
 
