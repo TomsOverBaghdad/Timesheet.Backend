@@ -6,7 +6,7 @@ var bodyParser  = require("body-parser");
 // var md5 = require('MD5');
 var rest = require("./REST.js");
 var app  = express();
-var cors = require('cors');
+var cors = require('express-cors');
 
 
 var resources; 
@@ -47,7 +47,11 @@ REST.prototype.connectMysql = function() {
 
 REST.prototype.configureExpress = function(connection) {
   	var self = this;    
-    app.use(cors);
+    app.use(cors({
+      allowedOrigins: [
+        'itsabouttime.herokuapp.com', 'localhost', 'localhost:8080', 'herokuapp.com'
+      ]
+    }));
   	app.use(bodyParser.urlencoded({ extended: true }));
  	  app.use(bodyParser.json());
      //
