@@ -57,8 +57,8 @@ REST.prototype.configureExpress = function(connection) {
         // Website you wish to allow to connect
         // res.setHeader('Access-Control-Allow-Origin', 'http://localhost:8080');
         // res.addHeader('Access-Control-Allow-Origin', 'http://itsabouttime.herokuapp.com');
-        res.headers['Access-Control-Allow-Origin'] = '*';
-        console.log(res.headers);
+        req.headers['Access-Control-Allow-Origin'] = '*';
+        console.log(req.headers);
         // Request methods you wish to allow
         // res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
         // Request headers you wish to allow
