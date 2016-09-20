@@ -114,11 +114,13 @@ REST_ROUTER.prototype.handleRoutes = function(router,connection) {
                         else {
                             SignOut(lastLogged, req, res, connection);
                         }    
+                        connection.release();
                         return;                    
                     }
                 }
                 SignIn(req, res, connection);
             }
+            connection.release();
         });
     });
 
