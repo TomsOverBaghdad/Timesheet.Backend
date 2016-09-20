@@ -48,10 +48,7 @@ REST.prototype.configureExpress = function(connection) {
   	var self = this;
   	app.use(bodyParser.urlencoded({ extended: true }));
  	  app.use(bodyParser.json());
-  	var router = express.Router();
-  	app.use('/', router);
-
-    //
+     //
     app.use(function (req, res, next) {
         console.log("--------------------------------------------");
         console.log("--------------------------------------------");
@@ -77,6 +74,8 @@ REST.prototype.configureExpress = function(connection) {
         console.log("--------------------------------------------");
         next();
     });
+  	var router = express.Router();
+  	app.use('/', router);
   	var rest_router = new rest(router,connection);
   	// var rest_router = new rest(router,connection,md5);
   	self.startServer();
