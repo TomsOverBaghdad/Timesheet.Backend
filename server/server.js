@@ -53,10 +53,15 @@ REST.prototype.configureExpress = function(connection) {
 
     //
     app.use(function (req, res, next) {
+        console.log("--------------------------------------------");
+        console.log("--------------------------------------------");
+        console.log("--------------------------------------------");
+        console.log("--------------------------------------------");
         // Website you wish to allow to connect
         // res.setHeader('Access-Control-Allow-Origin', 'http://localhost:8080');
         // res.addHeader('Access-Control-Allow-Origin', 'http://itsabouttime.herokuapp.com');
         res.addHeader('Access-Control-Allow-Origin', '*');
+        console.log(res);
         // Request methods you wish to allow
         // res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
         // Request headers you wish to allow
@@ -65,6 +70,11 @@ REST.prototype.configureExpress = function(connection) {
         // to the API (e.g. in case you use sessions)
         // res.setHeader('Access-Control-Allow-Credentials', true);
         // Pass to next layer of middleware
+
+        console.log("--------------------------------------------");
+        console.log("--------------------------------------------");
+        console.log("--------------------------------------------");
+        console.log("--------------------------------------------");
         next();
     });
   	var rest_router = new rest(router,connection);
