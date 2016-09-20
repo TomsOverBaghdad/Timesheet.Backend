@@ -76,7 +76,7 @@ REST_ROUTER.prototype.handleRoutes = function(router,pool) {
                 if(err) {
                     res.json(mySqlErrorJson(err));
                 } else {
-                    res.json({"Error" : false, "Message" : "Success", "program" : rows[0]});
+                    res.send(rows[0]);
                 }
             });
         });
