@@ -6,6 +6,7 @@ var bodyParser  = require("body-parser");
 // var md5 = require('MD5');
 var rest = require("./REST.js");
 var app  = express();
+var cors = require('cors');
 
 
 var resources; 
@@ -45,40 +46,24 @@ REST.prototype.connectMysql = function() {
 }
 
 REST.prototype.configureExpress = function(connection) {
-  	var self = this;
+  	var self = this;    
+    app.use(cors);
   	app.use(bodyParser.urlencoded({ extended: true }));
  	  app.use(bodyParser.json());
      //
-    app.use(function (req, res, next) {
-        console.log("--------------------------------------------");
-        console.log("--------------------------------------------");
-        console.log("--------------------------------------------");
-        console.log("--------------------------------------------");
-        // Website you wish to allow to connect
-        // res.setHeader('Access-Control-Allow-Origin', 'http://localhost:8080');
-        // res.addHeader('Access-Control-Allow-Origin', 'http://itsabouttime.herokuapp.com');
-        req.headers['Access-Control-Allow-Origin'] = '*';
-        console.log(req.headers);
-        // Request methods you wish to allow
-        // res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-        // Request headers you wish to allow
-        // res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
-        // Set to true if you need the website to include cookies in the requests sent
-        // to the API (e.g. in case you use sessions)
-        // res.setHeader('Access-Control-Allow-Credentials', true);
-        // Pass to next layer of middleware
-
-        console.log("--------------------------------------------");
-        console.log("--------------------------------------------");
-        console.log("--------------------------------------------");
-        console.log("--------------------------------------------");
-        next();
-    });
   	var router = express.Router();
   	app.use('/', router);
   	var rest_router = new rest(router,connection);
   	// var rest_router = new rest(router,connection,md5);
   	self.startServer();
+}
+
+function configCORS(req, res, next){
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
+
+  next();
 }
 
 REST.prototype.startServer = function() {
