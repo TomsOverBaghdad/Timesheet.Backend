@@ -74,7 +74,8 @@ REST_ROUTER.prototype.handleRoutes = function(router,pool) {
             connection.query(query,function(err,rows){
                 connection.release();
                 if(err) {
-                    res.json(mySqlErrorJson(err));
+                    // res.json(mySqlErrorJson(err));
+                    throw err;
                 } else {
                     res.send(rows[0]);
                 }
