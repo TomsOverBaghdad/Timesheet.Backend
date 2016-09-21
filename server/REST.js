@@ -43,7 +43,7 @@ function SignOut(lastLogged, req, res, connection){
         if(err) {
             res.json(mySqlErrorJson(err));
         } else {
-            res.json({"Error" : false, "Message" : "Success", "SignOut" : rows});
+            res.json({"SignOut" : rows});
         }
     });
 }
@@ -73,12 +73,8 @@ REST_ROUTER.prototype.handleRoutes = function(router,pool) {
         pool.getConnection(function(err, connection) {
             connection.query(query,function(err,rows){
                 connection.release();
-                if(err) {
-                    // res.json(mySqlErrorJson(err));
-                    throw err;
-                } else {
-                    res.send(rows[0]);
-                }
+                if(err) throw err;
+                res.send(rows[0]);                
             });
         });
     });
@@ -94,11 +90,8 @@ REST_ROUTER.prototype.handleRoutes = function(router,pool) {
         pool.getConnection(function(err, connection) {
             connection.query(query,function(err,rows){
                 connection.release();
-                if(err) {
-                    res.json(mySqlErrorJson(err));
-                } else {
-                    res.json({"Error" : false, "Message" : "Success", "timesheetLog" : rows[0]});
-                }
+                if(err) throw err;
+                res.send(rows[0]); 
             });
         });
     });
@@ -112,7 +105,7 @@ REST_ROUTER.prototype.handleRoutes = function(router,pool) {
         pool.getConnection(function(err, connection) {
             connection.query(query,function(err,rows){
                 if (err) {
-                    res.json(errorJson(err));
+                    throw err;
                 } else {
                     if (rows.length > 0) {
                         lastLogged = rows[0];
@@ -120,6 +113,7 @@ REST_ROUTER.prototype.handleRoutes = function(router,pool) {
                         if(lastLogged.DTEndLog == null) {
                             if(lastLogged.TimesheetId != req.params.timesheetId){
                                 res.json(errorJson("Did not log out from another timesheet"));
+                                // throw errorJson("Did not log out from another timesheet");
                             }
                             else {
                                 SignOut(lastLogged, req, res, connection);
