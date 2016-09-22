@@ -17,7 +17,7 @@ function errorJson(message){
 }
 
 function SignIn(req, res, connection){
-    var query = "INSERT INTO timesheet.timesheet_log "
+    var query = "INSERT INTO timesheet_log "
               + "( TimesheetId, DTStartLog, UserEmail )"
               + "VALUES (?, NOW(), ?)"
     var table = [req.params.timesheetId, req.params.userEmail];
@@ -34,7 +34,7 @@ function SignIn(req, res, connection){
 
 function SignOut(lastLogged, req, res, connection){
     var highLogTime = 4; //4 hours
-    var query = "UPDATE timesheetapp.timesheet_log"
+    var query = "UPDATE timesheet_log"
               + " SET DTEndLog = NOW(), Comment = ?, HighLogTime = TIMESTAMPDIFF(HOUR, lastLogged.DTStartLog, NOW()) > " +  highLogTime //4 hours
               + " WHERE LogId = ?";
     var table = [lastLogged.Comment, lastLogged.LogId];
