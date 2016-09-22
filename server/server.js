@@ -29,9 +29,6 @@ REST.prototype.connectMysql = function() {
     var pool      =    mysql.createPool({
         connectionLimit : 50,
         waitForConnection: true,
-        // connectTimeout  : 1000,
-        // acquireTimeout  : 1000,
-        // timeout         : 1000,
         host     : resources.host,
         user     : resources.user,
         password : resources.password,
@@ -44,7 +41,7 @@ REST.prototype.configureExpress = function(pool) {
   	var self = this;    
     app.use(cors({
       allowedOrigins: [
-        'itsabouttime.herokuapp.com', 'localhost', 'localhost:8080', 'herokuapp.com'
+        'itsabouttime.herokuapp.com', 'localhost', 'localhost:8080', 'herokuapp.com', 'http://localhost:8080'
       ]
     }));
   	app.use(bodyParser.urlencoded({ extended: true }));

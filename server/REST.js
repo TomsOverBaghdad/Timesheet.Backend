@@ -16,11 +16,11 @@ function errorJson(message){
     return {"Error" : true, "Message" : message};
 }
 
-function SignIn(req, res, connection){
+function SignIn(timesheetId, userEmail, res, connection){
     var query = "INSERT INTO timesheet_log "
               + "( TimesheetId, DTStartLog, UserEmail )"
               + "VALUES (?, NOW(), ?)"
-    var table = [req.params.timesheetId, req.params.userEmail];
+    var table = [timesheetId, userEmail];
     query = mysql.format(query, table);
     connection.query(query, function(err, rows){
         connection.release();
@@ -32,12 +32,12 @@ function SignIn(req, res, connection){
     });
 }
 
-function SignOut(lastLogged, req, res, connection){
+function SignOut(logId, comments, res, connection){
     var highLogTime = 4; //4 hours
     var query = "UPDATE timesheet_log"
               + " SET DTEndLog = NOW(), Comment = ?, HighLogTime = TIMESTAMPDIFF(HOUR, lastLogged.DTStartLog, NOW()) > " +  highLogTime //4 hours
               + " WHERE LogId = ?";
-    var table = [lastLogged.Comment, lastLogged.LogId];
+    var table = [comments, logId];
     connection.query(query, function(err, rows){
         connection.release();
         if(err) {
@@ -111,18 +111,18 @@ REST_ROUTER.prototype.handleRoutes = function(router,pool) {
                         lastLogged = rows[0];
 
                         if(lastLogged.DTEndLog == null) {
-                            if(lastLogged.TimesheetId != req.params.timesheetId){
+                            if(lastLogged.TimesheetId == req.params.timesheetId){
+                                SignOut(lastLogged.LogId, req.body.comments, res, connection);
+                            }
+                            else {                                
+                                connection.release();
                                 res.json(errorJson("Did not log out from another timesheet"));
                                 // throw errorJson("Did not log out from another timesheet");
-                            }
-                            else {
-                                SignOut(lastLogged, req, res, connection);
                             }    
-                            connection.release();
                             return;                    
                         }
                     }
-                    SignIn(req, res, connection);
+                    SignIn(req.params, res, connection);
                 }
             });
         });
