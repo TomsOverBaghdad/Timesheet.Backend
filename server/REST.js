@@ -42,6 +42,7 @@ function SignOut(logId, comments, res, connection){
     connection.query(query, function(err, rows){
         connection.release();
         if(err) {
+            console.log(query);
             res.json(mySqlErrorJson(err));
         } else {
             res.json({"SignOut" : rows});
