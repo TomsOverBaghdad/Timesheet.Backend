@@ -35,7 +35,8 @@ function SignIn(timesheetId, userEmail, res, connection){
 function SignOut(logId, comments, res, connection){
     var highLogTime = 4; //4 hours
     var query = "UPDATE timesheet_log"
-              + " SET DTEndLog = NOW(), Comment = ?, HighLogTime = TIMESTAMPDIFF(HOUR, " + lastLogged.DTStartLog + ", NOW()) > " +  highLogTime //4 hours
+              + " SET DTEndLog = NOW(), Comment = ?, "
+              +  "HighLogTime = TIMESTAMPDIFF(HOUR, STR_TO_DATE(" +  lastLogged.DTStartLog  + ",'%c/%e/%Y %r'), NOW()) > " +  highLogTime //4 hours
               + " WHERE LogId = ?";
     var table = [comments, logId];
     query = mysql.format(query, table);
