@@ -27,7 +27,7 @@ function SignIn(timesheetId, userEmail, res, connection){
         if(err) {
             res.json(mySqlErrorJson(err));
         } else {
-            res.json({"Error" : false, "Message" : "Success", "SignIn" : rows});
+            res.json({"SignIn" : rows});
         }
     });
 }
@@ -125,7 +125,7 @@ REST_ROUTER.prototype.handleRoutes = function(router,pool) {
                             return;                    
                         }
                     }
-                    SignIn(req.params, res, connection);
+                    SignIn(req.params.timesheetId, req.params.userEmail, res, connection);
                 }
             });
         });
