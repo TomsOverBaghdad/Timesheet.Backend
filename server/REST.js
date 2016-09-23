@@ -38,10 +38,10 @@ function SignOut(logId, comments, res, connection){
               + " SET DTEndLog = NOW(), Comment = ?, HighLogTime = TIMESTAMPDIFF(HOUR, lastLogged.DTStartLog, NOW()) > " +  highLogTime //4 hours
               + " WHERE LogId = ?";
     var table = [comments, logId];
+    query = mysql.format(query, table);
     connection.query(query, function(err, rows){
         connection.release();
         if(err) {
-            console.log(logId, comments);
             res.json(mySqlErrorJson(err));
         } else {
             res.json({"SignOut" : rows});
@@ -105,7 +105,6 @@ REST_ROUTER.prototype.handleRoutes = function(router,pool) {
         query = mysql.format(query,table);
         pool.getConnection(function(err, connection) {
             connection.query(query,function(err,rows){
-                console.log("trying to do something");
                 if (err) {
                     throw err;
                 } else {
@@ -113,9 +112,7 @@ REST_ROUTER.prototype.handleRoutes = function(router,pool) {
                         lastLogged = rows[0];
 
                         if(lastLogged.DTEndLog == null) {
-                            console.log(lastLogged);
                             if(lastLogged.TimesheetId == req.params.timesheetId){
-                                console.log("try SignOut ( " + lastLogged.LogId + ", " + req.body.comments + " ) ");
                                 SignOut(lastLogged.LogId, req.body.comments, res, connection);
                             }
                             else {                                
