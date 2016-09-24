@@ -7,15 +7,6 @@ function REST_ROUTER(router,pool) {
     self.handleRoutes(router,pool);
 }
 
-
-function mySqlErrorJson(err){
-    return {"Error" : err, "Message" : "Error executing MySQL query"};
-}
-
-function errorJson(message){
-    return {"Error" : true, "Message" : message};
-}
-
 function SignIn(timesheetId, userEmail, res, connection){
     var query = "INSERT INTO timesheet_log "
               + "( TimesheetId, DTStartLog, UserEmail )"
@@ -24,30 +15,21 @@ function SignIn(timesheetId, userEmail, res, connection){
     query = mysql.format(query, table);
     connection.query(query, function(err, rows){
         connection.release();
-        if(err) {
-            res.json(mySqlErrorJson(err));
-        } else {
-            res.json({"SignIn" : rows});
-        }
+        if(err) throw err;
+        res.json({"SignIn" : rows});
     });
 }
 
 function SignOut(logId, comments, res, connection){
-    var highLogTime = 4; //4 hours
     var query = "UPDATE timesheet_log"
-              + " SET DTEndLog = NOW(), Comment = ?, "
-                +  "HighLogTime = case when TIMESTAMPDIFF(HOUR, STR_TO_DATE('" +  lastLogged.DTStartLog  + "','%c/%e/%Y %r'), NOW()) > " +  highLogTime +" then 1 else 0 end"
+              + " SET DTEndLog = NOW(), Comment = ?"
               + " WHERE LogId = ?";
     var table = [comments, logId];
     query = mysql.format(query, table);
     connection.query(query, function(err, rows){
         connection.release();
-        if(err) {
-            console.log(query);
-            res.json(mySqlErrorJson(err));
-        } else {
-            res.json({"SignOut" : rows});
-        }
+        if(err) throw err;
+        res.json({"SignOut" : rows});
     });
 }
 
@@ -55,7 +37,7 @@ function SignOut(logId, comments, res, connection){
 // REST_ROUTER.prototype.handleRoutes = function(router,connection,md5) {
 REST_ROUTER.prototype.handleRoutes = function(router,pool) {
     var self = this;
-    var errorJson = 
+
     router.get("/",function(req,res){
         res.json({"Message" : "Hello World !"});
     });
@@ -116,13 +98,12 @@ REST_ROUTER.prototype.handleRoutes = function(router,pool) {
                         if(lastLogged.DTEndLog == null) {
                             if(lastLogged.TimesheetId == req.params.timesheetId){
                                 SignOut(lastLogged.LogId, req.body.comments, res, connection);
+                                return; 
                             }
                             else {                                
                                 connection.release();
-                                res.json(errorJson("Did not log out from another timesheet"));
-                                // throw errorJson("Did not log out from another timesheet");
-                            }    
-                            return;                    
+                                throw "Did not log out from another timesheet";
+                            }                       
                         }
                     }
                     SignIn(req.params.timesheetId, req.params.userEmail, res, connection);
