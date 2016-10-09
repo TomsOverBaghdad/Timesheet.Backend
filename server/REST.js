@@ -22,7 +22,7 @@ function SignIn(timesheetId, userEmail, res, connection){
 
 function SignOut(logId, comments, res, connection){
     var query = "UPDATE timesheet_log"
-              + " SET DTEndLog = NOW(), Comment = ?"
+              + " SET DTEndLog = NOW(), Comments = ?"
               + " WHERE LogId = ?";
     var table = [comments, logId];
     query = mysql.format(query, table);
@@ -42,7 +42,7 @@ REST_ROUTER.prototype.handleRoutes = function(router,pool) {
         res.json({"Message" : "Hello World !"});
     });
 
-    router.get("/timesheet/:timesheetId",function(req,res){
+    router.get("/timesheet/:timesheetId/info",function(req,res){
         //todo is this too much sql? should this be in a SP or a view?
         var query = "SELECT programs.`Name` AS programName,"
                   + " organizations.`Name` AS organizationName,"
@@ -53,6 +53,23 @@ REST_ROUTER.prototype.handleRoutes = function(router,pool) {
                   + " JOIN organizations"
                   + " ON organizations.`OrganizationId` = programs.`OrganizationId`"
                   + " WHERE timesheet.`TimesheetId` = ?";
+        var table = [req.params.timesheetId];
+        query = mysql.format(query,table);
+        pool.getConnection(function(err, connection) {
+            connection.query(query,function(err,rows){
+                connection.release();
+                if(err) throw err;
+                res.send(rows[0]);                
+            });
+        });
+    });
+
+    router.get("/timesheet/:timesheetId",function(req,res){
+        //todo is this too much sql? should this be in a SP or a view?
+        var query = "SELECT *"
+                  + " FROM timesheet"
+                  + " WHERE timesheet.`TimesheetId` = ?";
+                  // + " LIMIT 1000";
         var table = [req.params.timesheetId];
         query = mysql.format(query,table);
         pool.getConnection(function(err, connection) {
