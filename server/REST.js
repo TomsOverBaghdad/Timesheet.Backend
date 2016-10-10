@@ -76,7 +76,7 @@ REST_ROUTER.prototype.handleRoutes = function(router,pool) {
             connection.query(query,function(err,rows){
                 connection.release();
                 if(err) throw err;
-                res.send(rows[0]);                
+                res.send(rows);                
             });
         });
     });
