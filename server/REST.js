@@ -67,8 +67,8 @@ REST_ROUTER.prototype.handleRoutes = function(router,pool) {
     router.get("/timesheet/:timesheetId",function(req,res){
         //todo is this too much sql? should this be in a SP or a view?
         var query = "SELECT *"
-                  + " FROM timesheetLog"
-                  + " WHERE timesheetLog.`TimesheetId` = ?";
+                  + " FROM timesheet_log"
+                  + " WHERE timesheet_log.`TimesheetId` = ?";
                   // + " LIMIT 1000";
         var table = [req.params.timesheetId];
         query = mysql.format(query,table);
