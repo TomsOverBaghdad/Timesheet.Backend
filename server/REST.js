@@ -13,7 +13,7 @@ function SignIn(timesheetId, userEmail, res, connection){
               + "VALUES (?, NOW(), ?)"
     var table = [timesheetId, userEmail];
     query = mysql.format(query, table);
-    connection.query(query, function(err, rows){
+    connection.query(query, function(err, rows) {
         connection.release();
         if(err) throw err;
         res.json({"SignIn" : rows});
@@ -26,7 +26,7 @@ function SignOut(logId, comments, res, connection){
               + " WHERE LogId = ?";
     var table = [comments, logId];
     query = mysql.format(query, table);
-    connection.query(query, function(err, rows){
+    connection.query(query, function(err, rows) {
         connection.release();
         if(err) throw err;
         res.json({"SignOut" : rows});
@@ -56,7 +56,7 @@ REST_ROUTER.prototype.handleRoutes = function(router,pool) {
         var table = [req.params.timesheetId];
         query = mysql.format(query,table);
         pool.getConnection(function(err, connection) {
-            connection.query(query,function(err,rows){
+            connection.query(query,function(err,rows) {
                 connection.release();
                 if(err) throw err;
                 res.send(rows[0]);                
@@ -73,7 +73,7 @@ REST_ROUTER.prototype.handleRoutes = function(router,pool) {
         var table = [req.params.timesheetId];
         query = mysql.format(query,table);
         pool.getConnection(function(err, connection) {
-            connection.query(query,function(err,rows){
+            connection.query(query,function(err,rows) {
                 connection.release();
                 if(err) throw err;
                 res.send(rows);                
@@ -90,14 +90,16 @@ REST_ROUTER.prototype.handleRoutes = function(router,pool) {
         var table = [req.params.userEmail];
         query = mysql.format(query,table);
         pool.getConnection(function(err, connection) {
-            connection.query(query,function(err,rows){
+            connection.query(query,function(err,rows) {
                 connection.release();
                 if(err) throw err;
                 res.send(rows[0]); 
             });
         });
     });
+
 //hack for now
+    // router.post("/timesheet/:timesheetId/SignInSignOut/:userEmail",function(req,res){
     router.post("/timesheet/:timesheetId/Log/:userEmail",function(req,res){
         var query = "SELECT * FROM timesheet_log"
                   + " WHERE timesheet_log.`UserEmail` = ?"
@@ -105,7 +107,7 @@ REST_ROUTER.prototype.handleRoutes = function(router,pool) {
         var table = [req.params.userEmail];
         query = mysql.format(query,table);
         pool.getConnection(function(err, connection) {
-            connection.query(query,function(err,rows){
+            connection.query(query,function(err,rows) {
                 if (err) {
                     throw err;
                 } else {
@@ -125,6 +127,23 @@ REST_ROUTER.prototype.handleRoutes = function(router,pool) {
                     }
                     SignIn(req.params.timesheetId, req.params.userEmail, res, connection);
                 }
+            });
+        });
+    });
+
+    router.get("/timesheet/:timesheetId/user/:userEmail/log",function(req,res){
+        //todo is this too much sql? should this be in a SP or a view?
+        var query = "SELECT *"
+                  + " FROM timesheet_log"
+                  + " WHERE timesheet_log.`TimesheetId` = ?"
+                  + " AND timesheet_log.`UserEmail` = ?";
+        var table = [req.params.timesheetId, req.params.userEmail];
+        query = mysql.format(query,table);
+        pool.getConnection(function(err, connection) {
+            connection.query(query,function(err,rows) {
+                connection.release();
+                if(err) throw err;
+                res.send(rows);                
             });
         });
     });
